@@ -1,1 +1,17 @@
-doctrine/instantiator/phpunit.xml.dist
+<?xml version="1.0"?>
+<phpunit
+    bootstrap="doctrine/instantiator/vendor/autoload.php"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    verbose="true"
+    stopOnFailure="false"
+    processIsolation="false"
+    backupGlobals="false"
+    syntaxCheck="true"
+>
+    <testsuite name="Doctrine Instantiator extension tests">
+        <file>doctrine/instantiator/tests/DoctrineTest/InstantiatorTest/InstantiatorTest.php</file>
+    </testsuite>
+</phpunit>
