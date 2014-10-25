@@ -19,12 +19,12 @@
 PHPAPI zend_class_entry *doctrine_instantiator_instantiator_interface_ce;
 PHPAPI zend_class_entry *doctrine_instantiator_instantiator_ce;
 
-ZEND_BEGIN_ARG_INFO(arginfo_doctrine_instantiator_interface_instantiate, 0)
+ZEND_BEGIN_ARG_INFO(arginfo_doctrine_instantiator_instantiator_interface_instantiate, 0)
     ZEND_ARG_INFO(0, className)
 ZEND_END_ARG_INFO();
 
-static const zend_function_entry doctrine_instantiator_interface_methods[] = {
-    ZEND_ABSTRACT_ME(doctrine_instantiator_interface, instantiate, arginfo_doctrine_instantiator_interface_instantiate)
+static const zend_function_entry doctrine_instantiator_instantiator_interface_methods[] = {
+    ZEND_ABSTRACT_ME(doctrine_instantiator_interface, instantiate, arginfo_doctrine_instantiator_instantiator_interface_instantiate)
     PHP_FE_END
 };
 
@@ -44,12 +44,12 @@ PHP_METHOD(doctrine_instantiator, instantiate) {
     object_init_ex(return_value, *ce);
 }
 
-ZEND_BEGIN_ARG_INFO(doctrine_instantiator_instantiate, 0)
+ZEND_BEGIN_ARG_INFO(arginfo_doctrine_instantiator_instantiator_instantiate, 0)
     ZEND_ARG_INFO(0, className)
 ZEND_END_ARG_INFO();
 
-static const zend_function_entry doctrine_instantiator_methods[] = {
-    ZEND_ME(doctrine_instantiator, instantiate, doctrine_instantiator_instantiate, ZEND_ACC_PUBLIC)
+static const zend_function_entry doctrine_instantiator_instantiator_methods[] = {
+    ZEND_ME(doctrine_instantiator, instantiate, arginfo_doctrine_instantiator_instantiator_instantiate, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -57,10 +57,10 @@ PHP_MINIT_FUNCTION(doctrine_instantiator)
 {
     zend_class_entry ce;
 
-    INIT_CLASS_ENTRY(ce, "Doctrine\\Instantiator\\InstantiatorInterface", doctrine_instantiator_interface_methods);
+    INIT_CLASS_ENTRY(ce, "Doctrine\\Instantiator\\InstantiatorInterface", doctrine_instantiator_instantiator_interface_methods);
     doctrine_instantiator_instantiator_interface_ce = zend_register_internal_interface(&ce TSRMLS_CC);
 
-    INIT_CLASS_ENTRY(ce, "Doctrine\\Instantiator\\Instantiator", doctrine_instantiator_methods);
+    INIT_CLASS_ENTRY(ce, "Doctrine\\Instantiator\\Instantiator", doctrine_instantiator_instantiator_methods);
     doctrine_instantiator_instantiator_ce = zend_register_internal_class(&ce TSRMLS_CC);
     zend_class_implements(doctrine_instantiator_instantiator_ce TSRMLS_CC, 1, doctrine_instantiator_instantiator_interface_ce);
 
