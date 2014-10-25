@@ -5,6 +5,7 @@
 
 #include "php.h"
 #include "php_doctrine_instantiator.h"
+#include "ext/standard/info.h"
 
 #ifdef HAVE_SPL
 #include "ext/spl/spl_exceptions.h"
@@ -37,7 +38,8 @@ static const zend_function_entry doctrine_instantiator_instantiator_interface_me
 PHP_METHOD(doctrine_instantiator, instantiate) {
     char *class_name;
     int class_name_len;
-    zend_class_entry **ce;
+    zend_class_entry **ce, *old_scope;
+    zend_function *constructor;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &class_name, &class_name_len) == FAILURE) {
         return;
@@ -53,6 +55,56 @@ PHP_METHOD(doctrine_instantiator, instantiate) {
     }
 
     object_init_ex(return_value, *ce);
+
+    old_scope = EG(scope);
+    EG(scope) = *ce;
+    constructor = Z_OBJ_HT_P(return_value)->get_constructor(return_value TSRMLS_CC);
+    EG(scope) = old_scope;
+
+    if (constructor) {
+        zval *retval_ptr = NULL;
+        zend_fcall_info fci;
+        zend_fcall_info_cache fcc;
+
+        if (!(constructor->common.fn_flags & ZEND_ACC_PUBLIC)) {
+            zend_throw_exception_ex(
+                doctrine_instantiator_instantiator_exception_invalid_argument_exception_ce,
+                0 TSRMLS_CC,
+                "Access to non-public constructor of class %s", (*ce)->name
+            );
+            zval_dtor(return_value);
+            RETURN_NULL();
+        }
+
+        fci.size = sizeof(fci);
+        fci.function_table = EG(function_table);
+        fci.function_name = NULL;
+        fci.symbol_table = NULL;
+        fci.object_ptr = return_value;
+        fci.retval_ptr_ptr = &retval_ptr;
+        fci.param_count = 0;
+        fci.params = NULL;
+        fci.no_separation = 1;
+
+        fcc.initialized = 1;
+        fcc.function_handler = constructor;
+        fcc.calling_scope = EG(scope);
+        fcc.called_scope = Z_OBJCE_P(return_value);
+        fcc.object_ptr = return_value;
+
+        if (zend_call_function(&fci, &fcc TSRMLS_CC) == FAILURE) {
+            if (retval_ptr) {
+                zval_ptr_dtor(&retval_ptr);
+            }
+            zend_throw_exception_ex(
+                doctrine_instantiator_instantiator_exception_invalid_argument_exception_ce,
+                0 TSRMLS_CC,
+                "Invocation of %s's constructor failed", (*ce)->name
+            );
+            zval_dtor(return_value);
+            RETURN_NULL();
+        }
+    }
 }
 
 ZEND_BEGIN_ARG_INFO(arginfo_doctrine_instantiator_instantiator_instantiate, 0)
