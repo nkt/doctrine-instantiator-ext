@@ -19,6 +19,8 @@ BEGIN_EXTERN_C()
 
 extern PHPAPI zend_class_entry *doctrine_instantiator_instantiator_interface_ce;
 extern PHPAPI zend_class_entry *doctrine_instantiator_instantiator_ce;
+extern PHPAPI zend_class_entry *doctrine_instantiator_instantiator_exception_interface_ce;
+extern PHPAPI zend_class_entry *doctrine_instantiator_instantiator_exception_invalid_argument_exception_ce;
 
 END_EXTERN_C()
 

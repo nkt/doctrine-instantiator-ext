@@ -6,6 +6,10 @@
 #include "php.h"
 #include "php_doctrine_instantiator.h"
 
+#ifdef HAVE_SPL
+#include "ext/spl/spl_exceptions.h"
+#endif
+
 #include "zend.h"
 #include "zend_API.h"
 #include "zend_exceptions.h"
@@ -18,6 +22,8 @@
 
 PHPAPI zend_class_entry *doctrine_instantiator_instantiator_interface_ce;
 PHPAPI zend_class_entry *doctrine_instantiator_instantiator_ce;
+PHPAPI zend_class_entry *doctrine_instantiator_instantiator_exception_interface_ce;
+PHPAPI zend_class_entry *doctrine_instantiator_instantiator_exception_invalid_argument_exception_ce;
 
 ZEND_BEGIN_ARG_INFO(arginfo_doctrine_instantiator_instantiator_interface_instantiate, 0)
     ZEND_ARG_INFO(0, className)
@@ -38,7 +44,12 @@ PHP_METHOD(doctrine_instantiator, instantiate) {
     }
 
     if (zend_lookup_class(class_name, class_name_len, &ce TSRMLS_CC) != SUCCESS) {
-        RETURN_NULL();
+        zend_throw_exception(
+            doctrine_instantiator_instantiator_exception_invalid_argument_exception_ce,
+            "The provided class does not exist",
+            0 TSRMLS_CC
+        );
+        return;
     }
 
     object_init_ex(return_value, *ce);
@@ -63,6 +74,24 @@ PHP_MINIT_FUNCTION(doctrine_instantiator)
     INIT_CLASS_ENTRY(ce, "Doctrine\\Instantiator\\Instantiator", doctrine_instantiator_instantiator_methods);
     doctrine_instantiator_instantiator_ce = zend_register_internal_class(&ce TSRMLS_CC);
     zend_class_implements(doctrine_instantiator_instantiator_ce TSRMLS_CC, 1, doctrine_instantiator_instantiator_interface_ce);
+
+    INIT_CLASS_ENTRY(ce, "Doctrine\\Instantiator\\Exception\\ExceptionInterface", NULL);
+    doctrine_instantiator_instantiator_exception_interface_ce = zend_register_internal_interface(&ce TSRMLS_CC);
+
+    INIT_CLASS_ENTRY(ce, "Doctrine\\Instantiator\\Exception\\InvalidArgumentException", NULL);
+#ifdef HAVE_SPL
+    doctrine_instantiator_instantiator_exception_invalid_argument_exception_ce = zend_register_internal_class_ex(
+        &ce, spl_ce_InvalidArgumentException, NULL TSRMLS_CC
+    );
+#else
+    doctrine_instantiator_instantiator_exception_invalid_argument_exception_ce = zend_register_internal_class_ex(
+        &ce, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC
+    );
+#endif
+    zend_class_implements(
+        doctrine_instantiator_instantiator_exception_invalid_argument_exception_ce TSRMLS_CC, 1,
+        doctrine_instantiator_instantiator_exception_interface_ce
+    );
 
     return SUCCESS;
 }
