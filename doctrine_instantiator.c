@@ -43,11 +43,11 @@ PHP_METHOD(doctrine_instantiator, instantiate) {
         return;
     }
 
-    if (zend_lookup_class(class_name, class_name_len, &ce TSRMLS_CC) != SUCCESS) {
-        zend_throw_exception(
+    if (zend_lookup_class(class_name, class_name_len, &ce TSRMLS_CC) == FAILURE) {
+        zend_throw_exception_ex(
             doctrine_instantiator_instantiator_exception_invalid_argument_exception_ce,
-            "The provided class does not exist",
-            0 TSRMLS_CC
+            0 TSRMLS_CC,
+            "The provided class \"%s\" does not exist", class_name
         );
         return;
     }
