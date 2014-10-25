@@ -1,6 +1,8 @@
 Doctrine Instantiator extension
 ===============================
 
+[![Build Status](https://travis-ci.org/nkt/doctrine-instantiator-ext.svg?branch=master)](https://travis-ci.org/nkt/doctrine-instantiator-ext)
+
 PHP extension for https://github.com/doctrine/instantiator.
 
 
